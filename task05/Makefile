@@ -7,7 +7,8 @@ PWD := $(shell pwd)
 KERVER := $(shell uname -r)
 WORKDIR = /lib/modules/$(KERVER)/build
 
-obj-m := hello.o
+#obj-m := hello.o
+obj-m := hello2.o
 
 modules:
 	$(MAKE) -C $(WORKDIR) M=$(PWD) modules
