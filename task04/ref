@@ -1,0 +1,6 @@
+http://shawndot.blogspot.tw/2011/07/linux-kernel-coding-style.html
+http://shawndot.blogspot.tw/2011/07/linux-kernel-coding-style_28.html
+http://shawndot.blogspot.tw/2011/08/linux-kernel-coding-style.html
+
+/* check coding style */
+~/linux/script/checkpatch.pl --no-tree -f $FILE

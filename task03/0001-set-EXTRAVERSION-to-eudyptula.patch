@@ -1,0 +1,26 @@
+From 423a7e44cdd0f170a56c372dd2461ea0e2a25ab5 Mon Sep 17 00:00:00 2001
+From: wenhung yang <fyonyung@gmail.com>
+Date: Tue, 30 Jun 2015 21:48:08 +0800
+Subject: [PATCH 1/1] 	set EXTRAVERSION to "-eudyptula"
+
+Signed-off-by: wenhung yang <fyonyung@gmail.com>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 6c6f14628f32..99de3224daf7 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 4
+ PATCHLEVEL = 1
+ SUBLEVEL = 0
+-EXTRAVERSION =
++EXTRAVERSION = -eudyptula
+ NAME = Hurr durr I'ma sheep
+ 
+ # *DOCUMENTATION*
+-- 
+1.9.1
+
