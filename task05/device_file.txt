@@ -1,0 +1,2 @@
+crw------- 1 root root 180, 2 Jul  8 14:28 /dev/myUSB2
+crw------- 1 root root 180, 3 Jul  8 14:28 /dev/myUSB3

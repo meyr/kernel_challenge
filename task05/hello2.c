@@ -23,12 +23,35 @@ static const struct usb_device_id my_usb_table[] = {
 };
 MODULE_DEVICE_TABLE(usb, my_usb_table);
 
+static const struct file_operations skel_fops = {
+	.owner =	THIS_MODULE,
+};
+
+/*
+ * usb class driver info in order to get a minor number from the usb core,
+ * and to have the device registered with devfs and the driver core
+ */
+/* Get a minor range for your devices from the usb maintainer */
+#define USB_SKEL_MINOR_BASE	192
+
+static struct usb_class_driver skel_class = {
+	.name = "myUSB%d",
+	.fops = &skel_fops,
+	.minor_base = USB_SKEL_MINOR_BASE,
+};
+
 static int my_probe(struct usb_interface *interface,
 			const struct usb_device_id *id)
 {
 	int rtn = 0;
 
 	pr_debug("<myUSB> %s\n", __func__);
+	rtn = usb_register_dev(interface, &skel_class);
+	if (rtn) {
+		pr_err("Not able to get a minor for thie device");
+		goto error;
+	}
+error:
 	return rtn;
 }
 
