@@ -9,6 +9,7 @@ WORKDIR = /lib/modules/$(KERVER)/build
 
 #obj-m := hello.o
 obj-m := hello2.o
+ccflags-y := -DDEBUG 
 
 modules:
 	$(MAKE) -C $(WORKDIR) M=$(PWD) modules

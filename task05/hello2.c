@@ -3,8 +3,6 @@
 #include <linux/usb.h>
 #include <linux/hid.h>
 
-#define DEBUG
-
 /* Define these values to match your devices */
 #define USB_SKEL_VENDOR_ID	0xFFF0
 #define USB_SKEL_PRODUCT_ID	0xFFF0
@@ -30,12 +28,13 @@ static int my_probe(struct usb_interface *interface,
 {
 	int rtn = 0;
 
+	pr_debug("<myUSB> %s\n", __func__);
 	return rtn;
 }
 
 static void my_disconnect(struct usb_interface *interface)
 {
-
+	pr_debug("<myUSB> %s\n", __func__);
 }
 
 static struct usb_driver my_usb_driver = {
@@ -49,16 +48,16 @@ int __init my_module_init(void)
 {
 	int rtn = 0;
 
-	pr_debug("module init\n");
+	pr_debug("<myUSB> module init\n");
 	rtn = usb_register(&my_usb_driver);
 	if (rtn)
-		pr_warn("usb_register failed. error number %d", rtn);
+		pr_warn("<myUSB> usb_register failed. error number %d", rtn);
 	return rtn;
 }
 
 void __exit my_module_exit(void)
 {
-	pr_debug("module exit\n");
+	pr_debug("<myUSB> module exit\n");
 	usb_deregister(&my_usb_driver);
 }
 

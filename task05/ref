@@ -1,2 +1,9 @@
+/* pass cflag to make at Makefile when build kernel module*/
+CFLAGS_hello2.o += -DDEBUG
+
 /* turn on kernel debug message */
 #echo 8 > /proc/sys/kernel/printk
+
+/* diable usbhid module driver */
+file: /etc/modprobe.d/blacklist.conf
+add one line string "blacklist usbhid"
