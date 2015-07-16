@@ -23,42 +23,17 @@ static const struct usb_device_id my_usb_table[] = {
 };
 MODULE_DEVICE_TABLE(usb, my_usb_table);
 
-static int my_probe(struct usb_interface *interface,
-			const struct usb_device_id *id)
-{
-	int rtn = 0;
-
-	pr_debug("<myUSB> %s\n", __func__);
-	return rtn;
-}
-
-static void my_disconnect(struct usb_interface *interface)
-{
-	pr_debug("<myUSB> %s\n", __func__);
-}
-
-static struct usb_driver my_usb_driver = {
-	.name = "myUsbDriver",
-	.id_table = my_usb_table,
-	.probe = my_probe,
-	.disconnect = my_disconnect,
-};
-
 int __init my_module_init(void)
 {
 	int rtn = 0;
 
 	pr_debug("<myUSB> module init\n");
-	rtn = usb_register(&my_usb_driver);
-	if (rtn)
-		pr_warn("<myUSB> usb_register failed. error number %d", rtn);
 	return rtn;
 }
 
 void __exit my_module_exit(void)
 {
 	pr_debug("<myUSB> module exit\n");
-	usb_deregister(&my_usb_driver);
 }
 
 module_init(my_module_init);
