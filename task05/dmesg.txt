@@ -1,55 +1,10 @@
-[10303.346046] <myUSB> module init
-[10303.346074] usbcore: registered new interface driver myUsbDriver
-[10306.623172] usb 5-1: new low-speed USB device number 16 using uhci_hcd
-[10306.807737] usb 5-1: New USB device found, idVendor=04ca, idProduct=002f
-[10306.807742] usb 5-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[10306.807745] usb 5-1: Product: USB Multimedia Keyboard
-[10306.807748] usb 5-1: Manufacturer: Lite-On Technology Corp.
-[10306.810751] <myUSB> my_probe
-[10317.294057] usb 5-1: USB disconnect, device number 16
-[10317.294108] <myUSB> my_disconnect
-[10323.859514] <myUSB> module exit
-[10323.859520] usbcore: deregistering interface driver myUsbDriver
-[10445.486075] usb 5-1: new low-speed USB device number 17 using uhci_hcd
-[10445.654638] usb 5-1: New USB device found, idVendor=1bcf, idProduct=0007
-[10445.654644] usb 5-1: New USB device strings: Mfr=0, Product=2, SerialNumber=0
-[10445.654647] usb 5-1: Product: USB Optical Mouse
-[10451.660392] <myUSB> module init
-[10451.660418] <myUSB> my_probe
-[10451.660437] usbcore: registered new interface driver myUsbDriver
-[10454.421123] usb 5-1: USB disconnect, device number 17
-[10454.421174] <myUSB> my_disconnect
-[10457.388601] usb 5-1: new low-speed USB device number 18 using uhci_hcd
-[10457.557173] usb 5-1: New USB device found, idVendor=1bcf, idProduct=0007
-[10457.557178] usb 5-1: New USB device strings: Mfr=0, Product=2, SerialNumber=0
-[10457.557181] usb 5-1: Product: USB Optical Mouse
-[10457.562217] <myUSB> my_probe
-[10465.083752] usb 5-1: USB disconnect, device number 18
-[10465.083803] <myUSB> my_disconnect
-[10467.803313] usb 5-1: new low-speed USB device number 19 using uhci_hcd
-[10467.987886] usb 5-1: New USB device found, idVendor=04ca, idProduct=002f
-[10467.987891] usb 5-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[10467.987894] usb 5-1: Product: USB Multimedia Keyboard
-[10467.987897] usb 5-1: Manufacturer: Lite-On Technology Corp.
-[10467.990933] <myUSB> my_probe
-[10476.738317] usb 5-2: USB disconnect, device number 2
-[10476.738593] pl2303 ttyUSB0: pl2303 converter now disconnected from ttyUSB0
-[10476.738615] pl2303 5-2:1.0: device disconnected
-[10481.937566] usb 5-2: new low-speed USB device number 20 using uhci_hcd
-[10482.106146] usb 5-2: New USB device found, idVendor=1bcf, idProduct=0007
-[10482.106151] usb 5-2: New USB device strings: Mfr=0, Product=2, SerialNumber=0
-[10482.106155] usb 5-2: Product: USB Optical Mouse
-[10482.111194] <myUSB> my_probe
-[10494.096171] usb 5-1: USB disconnect, device number 19
-[10494.096220] <myUSB> my_disconnect
-[10494.224249] usb 5-2: USB disconnect, device number 20
-[10494.224291] <myUSB> my_disconnect
-[10497.507647] usb 5-2: new full-speed USB device number 21 using uhci_hcd
-[10497.665591] usb 5-2: New USB device found, idVendor=067b, idProduct=2303
-[10497.665596] usb 5-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[10497.665600] usb 5-2: Product: USB-Serial Controller D
-[10497.665602] usb 5-2: Manufacturer: Prolific Technology Inc. 
-[10497.667676] pl2303 5-2:1.0: pl2303 converter detected
-[10497.678791] usb 5-2: pl2303 converter now attached to ttyUSB0
-[10517.559001] <myUSB> module exit
-[10517.559007] usbcore: deregistering interface driver myUsbDriver
+[10129.581272] usb 5-1: new low-speed USB device number 19 using uhci_hcd
+[10129.765620] usb 5-1: New USB device found, idVendor=04ca, idProduct=002f
+[10129.765625] usb 5-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[10129.765628] usb 5-1: Product: USB Multimedia Keyboard
+[10129.765631] usb 5-1: Manufacturer: Lite-On Technology Corp.
+[10129.775522] <myUSB> module init
+[10129.775544] <myUSB> my_probe
+[10129.775565] usbcore: registered new interface driver myUsbDriver
+[10137.276489] usb 5-1: USB disconnect, device number 19
+[10137.276540] <myUSB> my_disconnect

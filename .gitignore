@@ -5,3 +5,4 @@ Module.symvers
 *.mod.c
 modules.order
 .tmp_versions/
+*.swp

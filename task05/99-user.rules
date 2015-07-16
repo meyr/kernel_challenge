@@ -1,0 +1,3 @@
+#AUO 3D Device
+ATTRS{bInterfaceClass}=="03", ATTRS{bInterfaceSubClass}=="01", ATTRS{bInterfaceProtocol}=="01", RUN+="/sbin/insmod /home/fyon/git-repo/kernel_challenge/task05/hello2.ko"
+#SUBSYSTEM=="usb", ATTRS{idVendor}=="04ca", ATTRS{idProduct}=="002f", RUN+="/sbin/insmod /home/fyon/git-repo/kernel_challenge/task05/hello2.ko"
