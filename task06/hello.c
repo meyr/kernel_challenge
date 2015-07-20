@@ -5,29 +5,29 @@
 #include <linux/uaccess.h>
 #include <linux/slab.h>
 
-char magic_number[] = "53719\n";
+char magic_number[] = "c157e58488d1\n";
 
 ssize_t misc_char_read(struct file *file, char __user *buf,
 	size_t count, loff_t *ppos)
 {
 	int len;
 
-	pr_debug("<myMISC> %s\n",__func__);
-	/* 
+	pr_debug("<myMISC> %s\n", __func__);
+	/*
 	 * we only support reading the whole string at once.
 	 */
 	len = strlen(magic_number);
-	if(count < len)
+	if (count < len)
 		return -EINVAL;
 
 	/*
 	 * if file position is non-zero, then assume the string has
 	 * been read and indicate there is no more data to read.
 	 */
-	if(*ppos != 0)
+	if (*ppos != 0)
 		return 0;
 
-	if(copy_to_user(buf, magic_number, len))
+	if (copy_to_user(buf, magic_number, len))
 		return -EINVAL;
 	/* tell the user how much data we wrote. */
 	*ppos = len;
@@ -38,18 +38,26 @@ ssize_t misc_char_write(struct file *file, const char __user *buf,
 	size_t size, loff_t *ppos)
 {
 	int rtn = 0;
+	int len;
 	char *data;
 
-	pr_debug("<myMISC> %s\n",__func__);
+	pr_debug("<myMISC> %s\n", __func__);
 	data = kmalloc(size, GFP_KERNEL);
-	if(!data) {
+	if (!data) {
 		pr_debug("<myMISC> malloc failure\n");
 		goto malloc_err;
 	}
-	memset(data,'\0',size);
+	memset(data, '\0', size);
 	copy_from_user(data, buf, size);
-	rtn = strlen(data);
-	pr_debug("<myMISC> data from user %s(%d)\n",data,size);
+	len = strlen(data);
+
+	/* compare input string to magic_number */
+	rtn = strncmp(magic_number, data, strlen(magic_number) - 1);
+	if (rtn == 0)
+		rtn = len;
+	else
+		rtn = -EINVAL;
+
 	kfree(data);
 malloc_err:
 	return rtn;
@@ -59,7 +67,7 @@ int misc_char_open(struct inode *inode, struct file *filp)
 {
 	int rtn = 0;
 
-	pr_debug("<myMISC> %s\n",__func__);
+	pr_debug("<myMISC> %s\n", __func__);
 	return rtn;
 }
 
@@ -67,11 +75,11 @@ int misc_char_release(struct inode *inode, struct file *filp)
 {
 	int rtn = 0;
 
-	pr_debug("<myMISC> %s\n",__func__);
+	pr_debug("<myMISC> %s\n", __func__);
 	return rtn;
 }
 
-static struct file_operations sample_char_fops = {
+static const struct file_operations sample_char_fops = {
 	.owner = THIS_MODULE,
 	.read = misc_char_read,
 	.write = misc_char_write,
@@ -89,7 +97,7 @@ static struct miscdevice misc_dev = {
 int __init my_module_init(void)
 {
 	int rtn = 0;
-	
+
 	pr_debug("<myMISC> module init\n");
 	rtn = misc_register(&misc_dev);
 	if (rtn)
