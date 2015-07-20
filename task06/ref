@@ -17,7 +17,7 @@ ssize_t misc_char_read(struct file *file, char __user *buf,
         size_t count, loff_t *ppos)
 
 rtn = lseek(fd,offset,whence);
- |
+ |                                         (file position indicator)
  +-----------------------------------------------------------------+
                                                                    |
 rtn = read(fd,buf,count) ---> rtn = misc_char_read(file,buf,conut,ppos);

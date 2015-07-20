@@ -46,9 +46,10 @@ ssize_t misc_char_write(struct file *file, const char __user *buf,
 		pr_debug("<myMISC> malloc failure\n");
 		goto malloc_err;
 	}
-
-	rtn = copy_from_user(data, buf, size);
-	pr_debug("<myMISC> data from user %s\n",data);
+	memset(data,'\0',size);
+	copy_from_user(data, buf, size);
+	rtn = strlen(data);
+	pr_debug("<myMISC> data from user %s(%d)\n",data,size);
 	kfree(data);
 malloc_err:
 	return rtn;
