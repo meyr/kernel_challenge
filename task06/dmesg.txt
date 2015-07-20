@@ -1,0 +1,11 @@
+[ 2519.812800] <myMISC> module init
+[ 2525.282547] <myMISC> misc_char_open
+[ 2525.282569] <myMISC> misc_char_read
+[ 2525.282588] <myMISC> misc_char_read
+[ 2525.282594] <myMISC> misc_char_release
+[ 2536.112093] <myMISC> misc_char_open
+[ 2536.112117] <myMISC> misc_char_write
+[ 2536.112126] <myMISC> misc_char_release
+[ 2548.903652] <myMISC> misc_char_open
+[ 2548.903675] <myMISC> misc_char_write
+[ 2548.903697] <myMISC> misc_char_release
