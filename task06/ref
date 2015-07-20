@@ -1,0 +1,29 @@
+/* misc device example */
+http://www.linuxdevcenter.com/pub/a/linux/2007/07/05/devhelloworld-a-simple-introduction-to-device-drivers-under-linux.html?page=2
+
+/* man page of read */
+ssize_t read(int fd, void *buf, size_t count);
+
+read() attempts to read up to __count__ bytes from file descriptor fd 
+into the buffer starting at buf.
+
+On success, the number of bytes read is returned (zero indicates end  of  file),
+and the file position is advanced by this number.
+
+user-space        kernel-space
+read()      --->  misc_char_read()
+
+ssize_t misc_char_read(struct file *file, char __user *buf,
+        size_t count, loff_t *ppos)
+
+rtn = lseek(fd,offset,whence);
+ |
+ +-----------------------------------------------------------------+
+                                                                   |
+rtn = read(fd,buf,count) ---> rtn = misc_char_read(file,buf,conut,ppos);
+ |             |    |          |                         |    |
+ +-------------+----+----------+                         |    |
+               |    |                                    |    |
+               +----+------------------------------------+    |
+                    |                                         |
+                    +-----------------------------------------+
