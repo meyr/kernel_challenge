@@ -27,3 +27,37 @@ rtn = read(fd,buf,count) ---> rtn = misc_char_read(file,buf,conut,ppos);
                +----+------------------------------------+    |
                     |                                         |
                     +-----------------------------------------+
+
+/* man page of write */
+ssize_t write(int fd, const void *buf, size_t count);
+
+write()  writes  up  to __count__ bytes from the buffer pointed buf to the file referred to by
+the file descriptor fd.
+
+On success, the number of bytes written is returned (zero indicates nothing was  written).
+On error, -1 is returned, and errno is set appropriately.
+
+user-space	 kernel-space
+write()    --->  misc_char_write()
+
+ssize_t misc_char_write(struct file *file, const char __user *buf,
+        size_t size, loff_t *ppos)
+
+
+rtn = lseek(fd,offset,whence);
+ |                                         (file position indicator)
+ +------------------------------------------------------------------+
+                                                                    |
+rtn = write(fd,buf,count) ---> rtn = misc_char_write(file,buf,size,ppos);
+ |              |    |          |                          |    |
+ +--------------+----+----------+                          |    |
+                |    |                                     |    |
+                +----+-------------------------------------+    |
+                     |                                          |
+                     +------------------------------------------+
+
+
+
+
+
+

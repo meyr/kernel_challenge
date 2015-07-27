@@ -7,31 +7,45 @@
 
 char magic_number[] = "c157e58488d1\n";
 
+#define my_debug(fmt, args...) \
+	do { pr_debug("<myMISC> %s "fmt, __func__, ## args); } \
+	while (0)
+
+
 ssize_t misc_char_read(struct file *file, char __user *buf,
 	size_t count, loff_t *ppos)
 {
 	int len;
+	int rtn;
 
-	pr_debug("<myMISC> %s\n", __func__);
+	my_debug("count %d ,ppos %d\n", (int)count, (int)*ppos);
 	/*
 	 * we only support reading the whole string at once.
 	 */
 	len = strlen(magic_number);
-	if (count < len)
-		return -EINVAL;
+	if (count < len) {
+		rtn = -EINVAL;
+		goto finish;
+	}
 
 	/*
 	 * if file position is non-zero, then assume the string has
 	 * been read and indicate there is no more data to read.
 	 */
-	if (*ppos != 0)
-		return 0;
+	if (*ppos != 0) {
+		rtn = 0;
+		goto finish;
+	}
 
-	if (copy_to_user(buf, magic_number, len))
-		return -EINVAL;
+	if (copy_to_user(buf, magic_number, len)) {
+		rtn = -EINVAL;
+		goto finish;
+	}
 	/* tell the user how much data we wrote. */
-	*ppos = len;
-	return len;
+	rtn = *ppos = len;
+finish:
+	my_debug("return %d\n", rtn);
+	return rtn;
 }
 
 ssize_t misc_char_write(struct file *file, const char __user *buf,
@@ -41,10 +55,10 @@ ssize_t misc_char_write(struct file *file, const char __user *buf,
 	int len;
 	char *data;
 
-	pr_debug("<myMISC> %s\n", __func__);
+	my_debug("count %d , ppos %d\n", (int)size, (int)*ppos);
 	data = kmalloc(size, GFP_KERNEL);
 	if (!data) {
-		pr_debug("<myMISC> malloc failure\n");
+		my_debug("malloc failure\n");
 		goto malloc_err;
 	}
 	memset(data, '\0', size);
@@ -67,7 +81,7 @@ int misc_char_open(struct inode *inode, struct file *filp)
 {
 	int rtn = 0;
 
-	pr_debug("<myMISC> %s\n", __func__);
+	my_debug("\n");
 	return rtn;
 }
 
@@ -75,7 +89,7 @@ int misc_char_release(struct inode *inode, struct file *filp)
 {
 	int rtn = 0;
 
-	pr_debug("<myMISC> %s\n", __func__);
+	my_debug("\n");
 	return rtn;
 }
 
@@ -98,16 +112,16 @@ int __init my_module_init(void)
 {
 	int rtn = 0;
 
-	pr_debug("<myMISC> module init\n");
+	my_debug("module init\n");
 	rtn = misc_register(&misc_dev);
 	if (rtn)
-		pr_debug("unable to register misc dev\n");
+		my_debug("unable to register misc dev\n");
 	return rtn;
 }
 
 void __exit my_module_exit(void)
 {
-	pr_debug("<myMISC> module exit\n");
+	my_debug("module exit\n");
 	misc_deregister(&misc_dev);
 }
 
