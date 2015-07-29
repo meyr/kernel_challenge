@@ -15,35 +15,10 @@ char magic_number[] = "c157e58488d1\n";
 ssize_t misc_char_read(struct file *file, char __user *buf,
 	size_t count, loff_t *ppos)
 {
-	int len;
 	int rtn;
 
 	my_debug("count %d ,ppos %d\n", (int)count, (int)*ppos);
-	/*
-	 * we only support reading the whole string at once.
-	 */
-	len = strlen(magic_number);
-	if (count < len) {
-		rtn = -EINVAL;
-		goto finish;
-	}
-
-	/*
-	 * if file position is non-zero, then assume the string has
-	 * been read and indicate there is no more data to read.
-	 */
-	if (*ppos != 0) {
-		rtn = 0;
-		goto finish;
-	}
-
-	if (copy_to_user(buf, magic_number, len)) {
-		rtn = -EINVAL;
-		goto finish;
-	}
-	/* tell the user how much data we wrote. */
-	rtn = *ppos = len;
-finish:
+	rtn = simple_read_from_buffer(buf, count, ppos, magic_number + *ppos, strlen(magic_number)); 
 	my_debug("return %d\n", rtn);
 	return rtn;
 }

@@ -58,6 +58,39 @@ rtn = write(fd,buf,count) ---> rtn = misc_char_write(file,buf,size,ppos);
 
 
 
+/* ref : simple_read_from_buffer kernel api */
+/**
+ * simple_read_from_buffer - copy data from the buffer to user space
+ * @to: the user space buffer to read to
+ * @count: the maximum number of bytes to read
+ * @ppos: the current position in the buffer
+ * @from: the buffer to read from
+ * @available: the size of the buffer
+ *
+ * The simple_read_from_buffer() function reads up to @count bytes from the
+ * buffer @from at offset @ppos into the user space address starting at @to.
+ *
+ * On success, the number of bytes read is returned and the offset @ppos is
+ * advanced by this number, or negative value is returned on error.
+ **/
+ssize_t simple_read_from_buffer(void __user *to, size_t count, loff_t *ppos,
+				const void *from, size_t available)
+{
+	loff_t pos = *ppos;
+	size_t ret;
 
-
+	if (pos < 0)
+		return -EINVAL;
+	if (pos >= available || !count)
+		return 0;
+	if (count > available - pos)
+		count = available - pos;
+	ret = copy_to_user(to, from + pos, count);
+	if (ret == count)
+		return -EFAULT;
+	count -= ret;
+	*ppos = pos + count;
+	return count;
+}
+EXPORT_SYMBOL(simple_read_from_buffer);
 
