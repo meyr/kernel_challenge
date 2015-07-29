@@ -8,17 +8,58 @@
 char magic_number[] = "c157e58488d1\n";
 
 #define my_debug(fmt, args...) \
-	do { pr_debug("<myMISC> %s "fmt, __func__, ## args); } \
-	while (0)
+	pr_debug("<myMISC> %s "fmt, __func__, ## args)
 
-
+/*
+ * On success, the number of bytes read is returned
+ * (zero indicates end  of  file),
+ * and the file position is advanced by this number.
+ */
 ssize_t misc_char_read(struct file *file, char __user *buf,
 	size_t count, loff_t *ppos)
 {
 	int rtn;
-
+	int len;
 	my_debug("count %d ,ppos %d\n", (int)count, (int)*ppos);
-	rtn = simple_read_from_buffer(buf, count, ppos, magic_number + *ppos, strlen(magic_number)); 
+	/* check ppos input argument*/
+	/* ppos must great than 0 */
+	if (*ppos < 0) {
+		rtn = -EINVAL;
+		goto err;
+	}
+
+	/* read out the data*/
+	len = strlen(magic_number);
+	if (*ppos >= len) {
+		rtn = 0;
+		goto finish;
+	}
+	/* check count input parameter */
+	/* count must great than 0 */
+	if (count <= 0) {
+		rtn = 0;
+		goto err;
+	}
+	/* read byte must small and equal remain byte */
+	if (count >= len - *ppos)
+		count = len - *ppos;
+
+	/* Returns number of bytes that __could not be copied.__
+	 * On success, this will be zero.
+	 */
+	rtn = copy_to_user(buf, magic_number + *ppos, count);
+
+	if (rtn == count) {
+		/* can't read all "count" byte data */
+		rtn = -EFAULT;
+		goto err;
+	} else
+		rtn = count - rtn;
+
+	/* move ppos position */
+	*ppos += rtn;
+finish:
+err:
 	my_debug("return %d\n", rtn);
 	return rtn;
 }

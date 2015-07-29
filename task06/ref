@@ -94,3 +94,30 @@ ssize_t simple_read_from_buffer(void __user *to, size_t count, loff_t *ppos,
 }
 EXPORT_SYMBOL(simple_read_from_buffer);
 
+/* copy_to_usr manpage */
+
+NAME
+	__copy_to_user - Copy a block of data into user space, with less checking.
+
+SYNOPSIS
+	unsigned long __copy_to_user(void __user * to, const void * from, unsigned long n);
+
+ARGUMENTS
+	to
+		Destination address, in user space.
+
+       from
+		Source address, in kernel space.
+
+	n
+		Number of bytes to copy.
+
+CONTEXT
+	User context only. This function may sleep.
+
+DESCRIPTION
+	Copy data from kernel space to user space. Caller must check the specified block with
+	access_ok before calling this function.
+
+	Returns number of bytes that could not be copied. On success, this will be zero.
+				
