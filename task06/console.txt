@@ -1,6 +1,8 @@
-fyon@fyon-U2442N:~$ cat /dev/eudyptula 
+fyon@fyon-linux:~/git-repo/kernel_challenge/task06(task06)$ cat /dev/eudyptula 
 c157e58488d1
-fyon@fyon-U2442N:~$ echo "c157e58488d1" > /dev/eudyptula 
-fyon@fyon-U2442N:~$ echo "12345" > /dev/eudyptula 
+fyon@fyon-linux:~/git-repo/kernel_challenge/task06(task06)$ echo "albert" > /dev/eudyptula 
 bash: echo: write error: Invalid argument
-
+fyon@fyon-linux:~/git-repo/kernel_challenge/task06(task06)$ echo "albertEinstein" > /dev/eudyptula 
+bash: echo: write error: Invalid argument
+fyon@fyon-linux:~/git-repo/kernel_challenge/task06(task06)$ echo `cat /dev/eudyptula` > /dev/eudyptula 
+fyon@fyon-linux:~/git-repo/kernel_challenge/task06(task06)$  

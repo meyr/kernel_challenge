@@ -54,6 +54,7 @@ ssize_t misc_char_read(struct file *file, char __user *buf,
 		rtn = -EFAULT;
 		goto err;
 	} else
+		/* return how much we read */
 		rtn = count - rtn;
 
 	/* move ppos position */
@@ -64,11 +65,14 @@ err:
 	return rtn;
 }
 
+/* On success, the number of bytes written is returned
+ * (zero indicates nothing was  written).
+ * On error, -1 is returned, and errno is set appropriately.
+ */
 ssize_t misc_char_write(struct file *file, const char __user *buf,
 	size_t size, loff_t *ppos)
 {
 	int rtn = 0;
-	int len;
 	char *data;
 
 	my_debug("count %d , ppos %d\n", (int)size, (int)*ppos);
@@ -78,18 +82,35 @@ ssize_t misc_char_write(struct file *file, const char __user *buf,
 		goto malloc_err;
 	}
 	memset(data, '\0', size);
-	copy_from_user(data, buf, size);
-	len = strlen(data);
+	/* check input argument */
+	/* we only support write from file start */
+	if (*ppos != 0) {
+		rtn = -EINVAL;
+		goto err;
+	}
+	/* Returns number of bytes that __could not be copied.__
+	 * On success, this will be zero.
+	 */
+	rtn = copy_from_user(data, buf, size);
+	if (rtn != 0) {
+		my_debug("copy_from_user fail\n");
+		rtn = -EFAULT;
+		goto err;
+	}
 
 	/* compare input string to magic_number */
 	rtn = strncmp(magic_number, data, strlen(magic_number) - 1);
+	my_debug("strncmp result %d\n", rtn);
 	if (rtn == 0)
-		rtn = len;
+		/* return how much we written */
+		rtn = size;
 	else
 		rtn = -EINVAL;
 
+err:
 	kfree(data);
 malloc_err:
+	my_debug("return %d\n", rtn);
 	return rtn;
 }
 
