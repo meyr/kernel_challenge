@@ -19,48 +19,10 @@ ssize_t misc_char_read(struct file *file, char __user *buf,
 	size_t count, loff_t *ppos)
 {
 	int rtn;
-	int len;
+
 	my_debug("count %d ,ppos %d\n", (int)count, (int)*ppos);
-	/* check ppos input argument*/
-	/* ppos must great than 0 */
-	if (*ppos < 0) {
-		rtn = -EINVAL;
-		goto err;
-	}
-
-	/* read out the data*/
-	len = strlen(magic_number);
-	if (*ppos >= len) {
-		rtn = 0;
-		goto finish;
-	}
-	/* check count input parameter */
-	/* count must great than 0 */
-	if (count <= 0) {
-		rtn = 0;
-		goto err;
-	}
-	/* read byte must small and equal remain byte */
-	if (count >= len - *ppos)
-		count = len - *ppos;
-
-	/* Returns number of bytes that __could not be copied.__
-	 * On success, this will be zero.
-	 */
-	rtn = copy_to_user(buf, magic_number + *ppos, count);
-
-	if (rtn == count) {
-		/* can't read all "count" byte data */
-		rtn = -EFAULT;
-		goto err;
-	} else
-		/* return how much we read */
-		rtn = count - rtn;
-
-	/* move ppos position */
-	*ppos += rtn;
-finish:
-err:
+	rtn = simple_read_from_buffer(buf, count, ppos, magic_number,
+		strlen(magic_number));
 	my_debug("return %d\n", rtn);
 	return rtn;
 }
@@ -82,22 +44,12 @@ ssize_t misc_char_write(struct file *file, const char __user *buf,
 		goto malloc_err;
 	}
 	memset(data, '\0', size);
-	/* check input argument */
-	/* we only support write from file start */
-	if (*ppos != 0) {
+	rtn = simple_write_to_buffer(data, size, ppos, buf, size);
+	if (rtn < 0) {
+		my_debug("simple_write_to_buffer fail(%d)\n", rtn);
 		rtn = -EINVAL;
 		goto err;
 	}
-	/* Returns number of bytes that __could not be copied.__
-	 * On success, this will be zero.
-	 */
-	rtn = copy_from_user(data, buf, size);
-	if (rtn != 0) {
-		my_debug("copy_from_user fail\n");
-		rtn = -EFAULT;
-		goto err;
-	}
-
 	/* compare input string to magic_number */
 	rtn = strncmp(magic_number, data, strlen(magic_number) - 1);
 	my_debug("strncmp result %d\n", rtn);
