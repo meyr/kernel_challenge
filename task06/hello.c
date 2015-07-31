@@ -20,10 +20,8 @@ ssize_t misc_char_read(struct file *file, char __user *buf,
 {
 	int rtn;
 
-	my_debug("count %d ,ppos %d\n", (int)count, (int)*ppos);
 	rtn = simple_read_from_buffer(buf, count, ppos, magic_number,
 		strlen(magic_number));
-	my_debug("return %d\n", rtn);
 	return rtn;
 }
 
@@ -37,22 +35,17 @@ ssize_t misc_char_write(struct file *file, const char __user *buf,
 	int rtn = 0;
 	char *data;
 
-	my_debug("count %d , ppos %d\n", (int)size, (int)*ppos);
 	data = kmalloc(size, GFP_KERNEL);
-	if (!data) {
-		my_debug("malloc failure\n");
+	if (!data)
 		goto malloc_err;
-	}
+
 	memset(data, '\0', size);
 	rtn = simple_write_to_buffer(data, size, ppos, buf, size);
-	if (rtn < 0) {
-		my_debug("simple_write_to_buffer fail(%d)\n", rtn);
-		rtn = -EINVAL;
+	if (rtn < 0)
 		goto err;
-	}
+
 	/* compare input string to magic_number */
 	rtn = strncmp(magic_number, data, strlen(magic_number) - 1);
-	my_debug("strncmp result %d\n", rtn);
 	if (rtn == 0)
 		/* return how much we written */
 		rtn = size;
@@ -62,7 +55,6 @@ ssize_t misc_char_write(struct file *file, const char __user *buf,
 err:
 	kfree(data);
 malloc_err:
-	my_debug("return %d\n", rtn);
 	return rtn;
 }
 
@@ -70,7 +62,6 @@ int misc_char_open(struct inode *inode, struct file *filp)
 {
 	int rtn = 0;
 
-	my_debug("\n");
 	return rtn;
 }
 
@@ -78,7 +69,6 @@ int misc_char_release(struct inode *inode, struct file *filp)
 {
 	int rtn = 0;
 
-	my_debug("\n");
 	return rtn;
 }
 
@@ -101,16 +91,12 @@ int __init my_module_init(void)
 {
 	int rtn = 0;
 
-	my_debug("module init\n");
 	rtn = misc_register(&misc_dev);
-	if (rtn)
-		my_debug("unable to register misc dev\n");
 	return rtn;
 }
 
 void __exit my_module_exit(void)
 {
-	my_debug("module exit\n");
 	misc_deregister(&misc_dev);
 }
 
