@@ -6,8 +6,12 @@
 PWD := $(shell pwd)
 KERVER := $(shell uname -r)
 WORKDIR = /lib/modules/$(KERVER)/build
+MODULE_NAME = myMISC
+SRC_FILE = hello.c
+OBJ_FILE = $(SRC_FILE:.c=.o)
 
-obj-m := hello.o
+obj-m := $(MODULE_NAME).o
+$(MODULE_NAME)-y = $(OBJ_FILE)
 ccflags-y := -DDEBUG 
 
 modules:
@@ -16,5 +20,10 @@ clean:
 	$(MAKE) -C $(WORKDIR) M=$(PWD) clean
 modules_install:
 	$(MAKE) -C $(WORKDIR) M=$(PWD) modules_install
+test:
+	@echo MODULE_NAME = $(MODULE_NAME)
+	@echo SRC_FILE = $(SRC_FILE)	
+	@echo WORKDIR = $(WORKDIR)
+	@echo ccflags = $(ccflags-y)
 
 .PHONY:	modules modules_install clean

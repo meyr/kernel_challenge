@@ -1,14 +1,14 @@
+#define pr_fmt(fmt) "<"KBUILD_MODNAME"> %s : " fmt, __func__
+
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/miscdevice.h>
 #include <linux/fs.h>
 #include <linux/uaccess.h>
 #include <linux/slab.h>
+#include <linux/printk.h>
 
 char magic_number[] = "c157e58488d1\n";
-
-#define my_debug(fmt, args...) \
-	pr_debug("<myMISC> %s "fmt, __func__, ## args)
 
 /*
  * On success, the number of bytes read is returned
@@ -18,11 +18,8 @@ char magic_number[] = "c157e58488d1\n";
 ssize_t misc_char_read(struct file *file, char __user *buf,
 	size_t count, loff_t *ppos)
 {
-	int rtn;
-
-	rtn = simple_read_from_buffer(buf, count, ppos, magic_number,
+	return simple_read_from_buffer(buf, count, ppos, magic_number,
 		strlen(magic_number));
-	return rtn;
 }
 
 /* On success, the number of bytes written is returned
@@ -35,11 +32,12 @@ ssize_t misc_char_write(struct file *file, const char __user *buf,
 	int rtn = 0;
 	char *data;
 
-	data = kmalloc(size, GFP_KERNEL);
-	if (!data)
+	data = kzalloc(size, GFP_KERNEL);
+	if (!data) {
+		rtn = -ENOMEM;
 		goto malloc_err;
+	}
 
-	memset(data, '\0', size);
 	rtn = simple_write_to_buffer(data, size, ppos, buf, size);
 	if (rtn < 0)
 		goto err;
@@ -91,12 +89,14 @@ int __init my_module_init(void)
 {
 	int rtn = 0;
 
+	pr_debug("misc_register\n");
 	rtn = misc_register(&misc_dev);
 	return rtn;
 }
 
 void __exit my_module_exit(void)
 {
+	pr_debug("misc_deregister\n");
 	misc_deregister(&misc_dev);
 }
 
