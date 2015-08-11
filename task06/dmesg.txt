@@ -1,0 +1,2 @@
+[ 7790.431208] <myMISC> my_module_init : misc_register
+[ 7873.140599] <myMISC> my_module_exit : misc_deregister
