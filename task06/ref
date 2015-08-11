@@ -1,0 +1,123 @@
+/* misc device example */
+http://www.linuxdevcenter.com/pub/a/linux/2007/07/05/devhelloworld-a-simple-introduction-to-device-drivers-under-linux.html?page=2
+
+/* man page of read */
+ssize_t read(int fd, void *buf, size_t count);
+
+read() attempts to read up to __count__ bytes from file descriptor fd 
+into the buffer starting at buf.
+
+On success, the number of bytes read is returned (zero indicates end  of  file),
+and the file position is advanced by this number.
+
+user-space        kernel-space
+read()      --->  misc_char_read()
+
+ssize_t misc_char_read(struct file *file, char __user *buf,
+        size_t count, loff_t *ppos)
+
+rtn = lseek(fd,offset,whence);
+ |                                         (file position indicator)
+ +-----------------------------------------------------------------+
+                                                                   |
+rtn = read(fd,buf,count) ---> rtn = misc_char_read(file,buf,conut,ppos);
+ |             |    |          |                         |    |
+ +-------------+----+----------+                         |    |
+               |    |                                    |    |
+               +----+------------------------------------+    |
+                    |                                         |
+                    +-----------------------------------------+
+
+/* man page of write */
+ssize_t write(int fd, const void *buf, size_t count);
+
+write()  writes  up  to __count__ bytes from the buffer pointed buf to the file referred to by
+the file descriptor fd.
+
+On success, the number of bytes written is returned (zero indicates nothing was  written).
+On error, -1 is returned, and errno is set appropriately.
+
+user-space	 kernel-space
+write()    --->  misc_char_write()
+
+ssize_t misc_char_write(struct file *file, const char __user *buf,
+        size_t size, loff_t *ppos)
+
+
+rtn = lseek(fd,offset,whence);
+ |                                         (file position indicator)
+ +------------------------------------------------------------------+
+                                                                    |
+rtn = write(fd,buf,count) ---> rtn = misc_char_write(file,buf,size,ppos);
+ |              |    |          |                          |    |
+ +--------------+----+----------+                          |    |
+                |    |                                     |    |
+                +----+-------------------------------------+    |
+                     |                                          |
+                     +------------------------------------------+
+
+
+
+/* ref : simple_read_from_buffer kernel api */
+/**
+ * simple_read_from_buffer - copy data from the buffer to user space
+ * @to: the user space buffer to read to
+ * @count: the maximum number of bytes to read
+ * @ppos: the current position in the buffer
+ * @from: the buffer to read from
+ * @available: the size of the buffer
+ *
+ * The simple_read_from_buffer() function reads up to @count bytes from the
+ * buffer @from at offset @ppos into the user space address starting at @to.
+ *
+ * On success, the number of bytes read is returned and the offset @ppos is
+ * advanced by this number, or negative value is returned on error.
+ **/
+ssize_t simple_read_from_buffer(void __user *to, size_t count, loff_t *ppos,
+				const void *from, size_t available)
+{
+	loff_t pos = *ppos;
+	size_t ret;
+
+	if (pos < 0)
+		return -EINVAL;
+	if (pos >= available || !count)
+		return 0;
+	if (count > available - pos)
+		count = available - pos;
+	ret = copy_to_user(to, from + pos, count);
+	if (ret == count)
+		return -EFAULT;
+	count -= ret;
+	*ppos = pos + count;
+	return count;
+}
+EXPORT_SYMBOL(simple_read_from_buffer);
+
+/* copy_to_usr manpage */
+
+NAME
+	__copy_to_user - Copy a block of data into user space, with less checking.
+
+SYNOPSIS
+	unsigned long __copy_to_user(void __user * to, const void * from, unsigned long n);
+
+ARGUMENTS
+	to
+		Destination address, in user space.
+
+       from
+		Source address, in kernel space.
+
+	n
+		Number of bytes to copy.
+
+CONTEXT
+	User context only. This function may sleep.
+
+DESCRIPTION
+	Copy data from kernel space to user space. Caller must check the specified block with
+	access_ok before calling this function.
+
+	Returns number of bytes that could not be copied. On success, this will be zero.
+				
