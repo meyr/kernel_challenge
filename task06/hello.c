@@ -56,26 +56,10 @@ malloc_err:
 	return rtn;
 }
 
-int misc_char_open(struct inode *inode, struct file *filp)
-{
-	int rtn = 0;
-
-	return rtn;
-}
-
-int misc_char_release(struct inode *inode, struct file *filp)
-{
-	int rtn = 0;
-
-	return rtn;
-}
-
 static const struct file_operations sample_char_fops = {
 	.owner = THIS_MODULE,
 	.read = misc_char_read,
 	.write = misc_char_write,
-	.open = misc_char_open,
-	.release = misc_char_release,
 };
 
 static struct miscdevice misc_dev = {
@@ -87,16 +71,11 @@ static struct miscdevice misc_dev = {
 
 int __init my_module_init(void)
 {
-	int rtn = 0;
-
-	pr_debug("misc_register\n");
-	rtn = misc_register(&misc_dev);
-	return rtn;
+	return misc_register(&misc_dev);
 }
 
 void __exit my_module_exit(void)
 {
-	pr_debug("misc_deregister\n");
 	misc_deregister(&misc_dev);
 }
 
