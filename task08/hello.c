@@ -57,7 +57,7 @@ malloc_err:
 	return rtn;
 }
 
-static const struct file_operations sample_char_fops = {
+static const struct file_operations debugfs_fops = {
 	.owner = THIS_MODULE,
 	.read = misc_char_read,
 	.write = misc_char_write,
@@ -66,16 +66,30 @@ static const struct file_operations sample_char_fops = {
 int __init my_module_init(void)
 {
 	int rtn;
-	pr_debug("module_init\n");
-	
-	my_debugfs_root = debugfs_create_dir("eudyptula",NULL);
+	struct dentry *d_id;
+
+	/* create eudyptula direction */
+	my_debugfs_root = debugfs_create_dir("eudyptula", NULL);
 	if (!my_debugfs_root) {
 		rtn = -ENOENT;
 		goto fail;
 	}
-success:
+
+	/* create id file */
+	d_id = debugfs_create_file("id", S_IRUGO | S_IWUGO,
+			my_debugfs_root, NULL, &debugfs_fops);
+	if (!d_id) {
+		rtn = -ENOENT;
+		goto fail;
+	}
+
+	/* success */
 	rtn = 0;
+	goto success;
 fail:
+	debugfs_remove_recursive(my_debugfs_root);
+	my_debugfs_root = NULL;
+success:
 	return rtn;
 }
 module_init(my_module_init);
