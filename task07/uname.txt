@@ -1,0 +1,3 @@
+fyon@fyon-U2442N:~$ uname -a
+Linux fyon-U2442N 4.2.0-rc6-next-20150810 #1 SMP Tue Aug 11 18:17:12 CST 2015 x86_64 x86_64 x86_64 GNU/Linux
+
