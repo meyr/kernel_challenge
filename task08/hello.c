@@ -17,7 +17,7 @@ extern u64 jiffies_64;
  * (zero indicates end  of  file),
  * and the file position is advanced by this number.
  */
-ssize_t misc_char_read(struct file *file, char __user *buf,
+ssize_t my_id_read(struct file *file, char __user *buf,
 	size_t count, loff_t *ppos)
 {
 	return simple_read_from_buffer(buf, count, ppos, magic_number,
@@ -28,7 +28,7 @@ ssize_t misc_char_read(struct file *file, char __user *buf,
  * (zero indicates nothing was  written).
  * On error, -1 is returned, and errno is set appropriately.
  */
-ssize_t misc_char_write(struct file *file, const char __user *buf,
+ssize_t my_id_write(struct file *file, const char __user *buf,
 	size_t size, loff_t *ppos)
 {
 	int rtn = 0;
@@ -58,16 +58,54 @@ malloc_err:
 	return rtn;
 }
 
-static const struct file_operations debugfs_fops = {
+static const struct file_operations id_fops = {
 	.owner = THIS_MODULE,
-	.read = misc_char_read,
-	.write = misc_char_write,
+	.read = my_id_read,
+	.write = my_id_write,
+};
+
+int foo_open(struct inode *inp, struct file *filp)
+{
+	int rtn = 0;
+
+	pr_debug("foo_open\n");
+	filp->private_data = inp->i_private;
+	return rtn;
+}
+
+int foo_release(struct inode *inp, struct file *filp)
+{
+	int rtn = 0;
+	
+	pr_debug("foo_release\n");
+	return rtn;
+}
+
+ssize_t foo_read(struct file *file, char __user *buf,
+	size_t count, loff_t *ppos)
+{
+	return simple_read_from_buffer(buf, count, ppos, magic_number,
+		strlen(magic_number));
+}
+
+ssize_t foo_write(struct file *file, const char __user *buf,
+	size_t size, loff_t *ppos)
+{
+	return size;
+}
+
+static const struct file_operations foo_fops = {
+	.owner = THIS_MODULE,
+	.open = foo_open,
+	.release = foo_release,
+	.read = foo_read,
+	.write = foo_write,
 };
 
 int __init my_module_init(void)
 {
 	int rtn;
-	struct dentry *d_id, *d_jiffies;
+	struct dentry *d_id, *d_jiffies, *d_foo;
 
 	/* create eudyptula direction */
 	my_debugfs_root = debugfs_create_dir("eudyptula", NULL);
@@ -78,15 +116,27 @@ int __init my_module_init(void)
 
 	/* create id file */
 	d_id = debugfs_create_file("id", S_IRUGO | S_IWUGO,
-			my_debugfs_root, NULL, &debugfs_fops);
+			my_debugfs_root, NULL, &id_fops);
 	if (!d_id) {
+		pr_debug("create file id fail\n");
 		rtn = -ENOENT;
 		goto fail;
 	}
 
 	/* create jiffies */
-	d_jiffies = debugfs_create_u64("jiffies", S_IRUGO, my_debugfs_root, &jiffies_64);
+	d_jiffies = debugfs_create_u64("jiffies", S_IRUGO,
+			my_debugfs_root, &jiffies_64);
 	if (!d_jiffies) {
+		pr_debug("create file jiffies fail\n");
+		rtn = -ENOENT;
+		goto fail;
+	}
+
+	/* create foo */
+	d_foo = debugfs_create_file("foo", S_IWUSR | S_IRUGO,
+			my_debugfs_root, NULL, &foo_fops);
+	if (!d_foo) {
+		pr_debug("create file foo fail\n");
 		rtn = -ENOENT;
 		goto fail;
 	}
