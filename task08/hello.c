@@ -8,13 +8,14 @@
 #include <linux/printk.h>
 #include <linux/debugfs.h>
 #include <linux/jiffies.h>
-#include <linux/semaphore.h>
+#include <linux/mutex.h>
+#include <linux/kfifo.h>
 
 char magic_number[] = "c157e58488d1\n";
 struct dentry *my_debugfs_root;
 extern u64 jiffies_64;
-char mydata[PAGE_SIZE];
-DEFINE_SEMAPHORE(myLock);
+DEFINE_MUTEX(myLock);
+STRUCT_KFIFO_REC_1(PAGE_SIZE) myData;
 /*
  * On success, the number of bytes read is returned
  * (zero indicates end  of  file),
@@ -88,23 +89,26 @@ ssize_t foo_read(struct file *file, char __user *buf,
 	size_t count, loff_t *ppos)
 {
 	int rtn;
+	unsigned int copied;
 
-	down(&myLock);
-	rtn = simple_read_from_buffer(buf, count, ppos, mydata,
-		PAGE_SIZE);
-	up(&myLock);
-	return rtn;
+	if (mutex_lock_interruptible(&myLock))
+		return -ERESTARTSYS;
+	rtn = kfifo_to_user(&myData, buf, count, &copied);
+	mutex_unlock(&myLock);
+	return rtn ? rtn : copied;
 }
 
 ssize_t foo_write(struct file *file, const char __user *buf,
 	size_t size, loff_t *ppos)
 {
 	int rtn;
+	unsigned int copied;
 
-	down(&myLock);
-	rtn = simple_write_to_buffer(mydata, PAGE_SIZE, ppos, buf, size);
-	up(&myLock);
-	return rtn;
+	if (mutex_lock_interruptible(&myLock))
+		return -ERESTARTSYS;
+	rtn = kfifo_from_user(&myData, buf, size, &copied);
+	mutex_unlock(&myLock);
+	return rtn ? rtn : copied;
 }
 
 static const struct file_operations foo_fops = {
@@ -153,8 +157,7 @@ int __init my_module_init(void)
 		rtn = -ENOENT;
 		goto fail;
 	}
-	memset(mydata,0,PAGE_SIZE);
-	sema_init(&myLock,1);
+	INIT_KFIFO(myData);
 	/* success */
 	rtn = 0;
 	goto success;
