@@ -8,10 +8,13 @@
 #include <linux/printk.h>
 #include <linux/debugfs.h>
 #include <linux/jiffies.h>
+#include <linux/semaphore.h>
 
 char magic_number[] = "c157e58488d1\n";
 struct dentry *my_debugfs_root;
 extern u64 jiffies_64;
+char mydata[PAGE_SIZE];
+DEFINE_SEMAPHORE(myLock);
 /*
  * On success, the number of bytes read is returned
  * (zero indicates end  of  file),
@@ -84,14 +87,24 @@ int foo_release(struct inode *inp, struct file *filp)
 ssize_t foo_read(struct file *file, char __user *buf,
 	size_t count, loff_t *ppos)
 {
-	return simple_read_from_buffer(buf, count, ppos, magic_number,
-		strlen(magic_number));
+	int rtn;
+
+	down(&myLock);
+	rtn = simple_read_from_buffer(buf, count, ppos, mydata,
+		PAGE_SIZE);
+	up(&myLock);
+	return rtn;
 }
 
 ssize_t foo_write(struct file *file, const char __user *buf,
 	size_t size, loff_t *ppos)
 {
-	return size;
+	int rtn;
+
+	down(&myLock);
+	rtn = simple_write_to_buffer(mydata, PAGE_SIZE, ppos, buf, size);
+	up(&myLock);
+	return rtn;
 }
 
 static const struct file_operations foo_fops = {
@@ -140,6 +153,8 @@ int __init my_module_init(void)
 		rtn = -ENOENT;
 		goto fail;
 	}
+	memset(mydata,0,PAGE_SIZE);
+	sema_init(&myLock,1);
 	/* success */
 	rtn = 0;
 	goto success;
