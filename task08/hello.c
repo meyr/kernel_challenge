@@ -8,16 +8,20 @@
 #include <linux/printk.h>
 #include <linux/debugfs.h>
 #include <linux/jiffies.h>
+#include <linux/mutex.h>
+#include <linux/kfifo.h>
 
 char magic_number[] = "c157e58488d1\n";
 struct dentry *my_debugfs_root;
 extern u64 jiffies_64;
+DEFINE_MUTEX(myLock);
+STRUCT_KFIFO_REC_1(PAGE_SIZE) myData;
 /*
  * On success, the number of bytes read is returned
  * (zero indicates end  of  file),
  * and the file position is advanced by this number.
  */
-ssize_t misc_char_read(struct file *file, char __user *buf,
+ssize_t my_id_read(struct file *file, char __user *buf,
 	size_t count, loff_t *ppos)
 {
 	return simple_read_from_buffer(buf, count, ppos, magic_number,
@@ -28,7 +32,7 @@ ssize_t misc_char_read(struct file *file, char __user *buf,
  * (zero indicates nothing was  written).
  * On error, -1 is returned, and errno is set appropriately.
  */
-ssize_t misc_char_write(struct file *file, const char __user *buf,
+ssize_t my_id_write(struct file *file, const char __user *buf,
 	size_t size, loff_t *ppos)
 {
 	int rtn = 0;
@@ -58,16 +62,48 @@ malloc_err:
 	return rtn;
 }
 
-static const struct file_operations debugfs_fops = {
+static const struct file_operations id_fops = {
 	.owner = THIS_MODULE,
-	.read = misc_char_read,
-	.write = misc_char_write,
+	.read = my_id_read,
+	.write = my_id_write,
+};
+
+ssize_t foo_read(struct file *file, char __user *buf,
+	size_t count, loff_t *ppos)
+{
+	int rtn;
+	unsigned int copied;
+
+	if (mutex_lock_interruptible(&myLock))
+		return -ERESTARTSYS;
+	rtn = kfifo_to_user(&myData, buf, count, &copied);
+	mutex_unlock(&myLock);
+	return rtn ? rtn : copied;
+}
+
+ssize_t foo_write(struct file *file, const char __user *buf,
+	size_t size, loff_t *ppos)
+{
+	int rtn;
+	unsigned int copied;
+
+	if (mutex_lock_interruptible(&myLock))
+		return -ERESTARTSYS;
+	rtn = kfifo_from_user(&myData, buf, size, &copied);
+	mutex_unlock(&myLock);
+	return rtn ? rtn : copied;
+}
+
+static const struct file_operations foo_fops = {
+	.owner = THIS_MODULE,
+	.read = foo_read,
+	.write = foo_write,
 };
 
 int __init my_module_init(void)
 {
 	int rtn;
-	struct dentry *d_id, *d_jiffies;
+	struct dentry *d_id, *d_jiffies, *d_foo;
 
 	/* create eudyptula direction */
 	my_debugfs_root = debugfs_create_dir("eudyptula", NULL);
@@ -78,18 +114,31 @@ int __init my_module_init(void)
 
 	/* create id file */
 	d_id = debugfs_create_file("id", S_IRUGO | S_IWUGO,
-			my_debugfs_root, NULL, &debugfs_fops);
+			my_debugfs_root, NULL, &id_fops);
 	if (!d_id) {
+		pr_debug("create file id fail\n");
 		rtn = -ENOENT;
 		goto fail;
 	}
 
 	/* create jiffies */
-	d_jiffies = debugfs_create_u64("jiffies", S_IRUGO, my_debugfs_root, &jiffies_64);
+	d_jiffies = debugfs_create_u64("jiffies", S_IRUGO,
+			my_debugfs_root, &jiffies_64);
 	if (!d_jiffies) {
+		pr_debug("create file jiffies fail\n");
 		rtn = -ENOENT;
 		goto fail;
 	}
+
+	/* create foo */
+	d_foo = debugfs_create_file("foo", S_IWUSR | S_IRUGO,
+			my_debugfs_root, NULL, &foo_fops);
+	if (!d_foo) {
+		pr_debug("create file foo fail\n");
+		rtn = -ENOENT;
+		goto fail;
+	}
+	INIT_KFIFO(myData);
 	/* success */
 	rtn = 0;
 	goto success;
