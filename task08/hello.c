@@ -68,23 +68,6 @@ static const struct file_operations id_fops = {
 	.write = my_id_write,
 };
 
-int foo_open(struct inode *inp, struct file *filp)
-{
-	int rtn = 0;
-
-	pr_debug("foo_open\n");
-	filp->private_data = inp->i_private;
-	return rtn;
-}
-
-int foo_release(struct inode *inp, struct file *filp)
-{
-	int rtn = 0;
-	
-	pr_debug("foo_release\n");
-	return rtn;
-}
-
 ssize_t foo_read(struct file *file, char __user *buf,
 	size_t count, loff_t *ppos)
 {
@@ -113,8 +96,6 @@ ssize_t foo_write(struct file *file, const char __user *buf,
 
 static const struct file_operations foo_fops = {
 	.owner = THIS_MODULE,
-	.open = foo_open,
-	.release = foo_release,
 	.read = foo_read,
 	.write = foo_write,
 };
