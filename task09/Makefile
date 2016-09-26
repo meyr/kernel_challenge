@@ -6,7 +6,7 @@
 PWD := $(shell pwd)
 KERVER := $(shell uname -r)
 WORKDIR = /lib/modules/$(KERVER)/build
-MODULE_NAME = myDebugfs
+MODULE_NAME = task09
 SRC_FILE = hello.c
 OBJ_FILE = $(SRC_FILE:.c=.o)
 

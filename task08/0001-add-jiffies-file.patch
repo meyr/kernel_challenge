@@ -1,0 +1,39 @@
+diff --git a/task08/hello.c b/task08/hello.c
+index 6c4a5d7..aa1fbdd 100644
+--- a/task08/hello.c
++++ b/task08/hello.c
+@@ -7,10 +7,11 @@
+ #include <linux/slab.h>
+ #include <linux/printk.h>
+ #include <linux/debugfs.h>
++#include <linux/jiffies.h>
+ 
+ char magic_number[] = "c157e58488d1\n";
+ struct dentry *my_debugfs_root;
+-
++extern u64 jiffies_64;
+ /*
+  * On success, the number of bytes read is returned
+  * (zero indicates end  of  file),
+@@ -66,7 +67,7 @@ static const struct file_operations debugfs_fops = {
+ int __init my_module_init(void)
+ {
+ 	int rtn;
+-	struct dentry *d_id;
++	struct dentry *d_id, *d_jiffies;
+ 
+ 	/* create eudyptula direction */
+ 	my_debugfs_root = debugfs_create_dir("eudyptula", NULL);
+@@ -83,6 +84,12 @@ int __init my_module_init(void)
+ 		goto fail;
+ 	}
+ 
++	/* create jiffies */
++	d_jiffies = debugfs_create_u64("jiffies", S_IRUGO, my_debugfs_root, &jiffies_64);
++	if (!d_jiffies) {
++		rtn = -ENOENT;
++		goto fail;
++	}
+ 	/* success */
+ 	rtn = 0;
+ 	goto success;

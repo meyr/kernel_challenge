@@ -1,0 +1,11 @@
+  task01 -- Write a Linux kernel module, and stand-alone Makefile
+  task02 -- build a custom kernel
+  task03 -- modify the EXTRAVERSION field
+  task04 -- Linux kernel coding style
+**task05 -- when any USB keyboard is plugged in, the module will be
+            automatically loaded by the correct userspace hotplug tools
+**task06 -- misc char device driver
+  task07 -- download, build, and boot linux-next kernel
+**task08 -- debugfs
+**task09 -- sysfs, kobject
+  task10 --
