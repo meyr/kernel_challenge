@@ -45,17 +45,44 @@ static ssize_t jiffies_show(struct kobject *kobj, struct kobj_attribute *attr,
 	return sprintf(buf, "%llu\n", jiffies_64);
 }
 
+static ssize_t foo_store(struct kobject *kobj, struct kobj_attribute *attr,
+			 const char *buf, size_t size)
+{
+	int rtn;
+
+	if (mutex_lock_interruptible(&myLock))
+		return -ERESTARTSYS;
+	rtn = kfifo_in(&myData, buf, size);
+	mutex_unlock(&myLock);
+
+	return rtn;
+
+}
+
+static ssize_t foo_show(struct kobject *kobj, struct kobj_attribute *attr,
+			char *buf)
+{
+	int rtn;
+
+	if (mutex_lock_interruptible(&myLock))
+		return -ERESTARTSYS;
+	rtn = kfifo_out(&myData, buf, kfifo_len(&myData));
+	mutex_unlock(&myLock);
+	return rtn;
+
+}
+
 static struct kobj_attribute id_attribute =
 	__ATTR(id, 0666, id_show, id_store);
 static struct kobj_attribute jiffies_attribute =
 	__ATTR(jiffies, 0444, jiffies_show, NULL);
-//static struct kobj_attribute foo_attribute =
-//	__ATTR(bar, 0644, foo_show, foo_store);
+static struct kobj_attribute foo_attribute =
+	__ATTR(foo, 0644, foo_show, foo_store);
 
 static struct attribute *attrs[] = {
 	&id_attribute.attr,
 	&jiffies_attribute.attr,
-//	&foo_attribute.attr,
+	&foo_attribute.attr,
 	NULL,
 };
 static struct attribute_group attr_group = {
@@ -77,6 +104,7 @@ int __init my_module_init(void)
 	if (rtn)
 		kobject_put(kobj);
 	
+	INIT_KFIFO(myData);
 	/* success */
 	rtn = 0;
 	return rtn;
@@ -90,5 +118,5 @@ void __exit my_module_exit(void)
 module_exit(my_module_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("wenhung <fyonyung@gmail.com>");
+MODULE_AUTHOR("wenhungyang <fyonyung@gmail.com>");
 

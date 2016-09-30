@@ -12,6 +12,8 @@ OBJ_FILE = $(SRC_FILE:.c=.o)
 
 obj-m := $(MODULE_NAME).o
 $(MODULE_NAME)-y = $(OBJ_FILE)
+#obj-m = kobject.o
+#kobject-y = kobject-example.o
 ccflags-y := -DDEBUG 
 
 modules:
