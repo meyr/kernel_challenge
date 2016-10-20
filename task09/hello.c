@@ -91,6 +91,7 @@ int __init my_module_init(void)
 {
 	int rtn;
 
+	INIT_KFIFO(myData);
 	/* create eudyptula direction */
 	kobj = kobject_create_and_add("eudyptula", kernel_kobj);
 	if (!kobj)
@@ -100,8 +101,7 @@ int __init my_module_init(void)
 	rtn = sysfs_create_group(kobj, &attr_group);
 	if (rtn)
 		kobject_put(kobj);
-	
-	INIT_KFIFO(myData);
+
 	/* success */
 	rtn = 0;
 	return rtn;
