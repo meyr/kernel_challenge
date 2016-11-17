@@ -1,0 +1,18 @@
+root@fyon-U2442:/sys/kernel/eudyptula# ls
+foo  id  jiffies
+root@fyon-U2442:/sys/kernel/eudyptula# cat id
+c157e58488d1
+root@fyon-U2442:/sys/kernel/eudyptula# echo 12345 > id
+-su: echo: write error: Invalid argument
+root@fyon-U2442:/sys/kernel/eudyptula# echo `cat id` > id
+root@fyon-U2442:/sys/kernel/eudyptula# cat jiffies 
+4297685194
+root@fyon-U2442:/sys/kernel/eudyptula# echo 12345 > jiffies 
+-su: jiffies: Permission denied
+root@fyon-U2442:/sys/kernel/eudyptula# echo "albert" > foo
+root@fyon-U2442:/sys/kernel/eudyptula# echo "meyr" > foo
+root@fyon-U2442:/sys/kernel/eudyptula# cat foo
+albert
+root@fyon-U2442:/sys/kernel/eudyptula# cat foo
+meyr
+

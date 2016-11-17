@@ -6,18 +6,18 @@
 PWD := $(shell pwd)
 KERVER := $(shell uname -r)
 WORKDIR = /lib/modules/$(KERVER)/build
-MODULE_NAME = myDebugfs
+MODULE_NAME = task09
 SRC_FILE = hello.c
 OBJ_FILE = $(SRC_FILE:.c=.o)
 
 obj-m := $(MODULE_NAME).o
 $(MODULE_NAME)-y = $(OBJ_FILE)
-#obj-m = kfifo.o
-#kfifo-y = kfifo-example.o
+#obj-m = kobject.o
+#kobject-y = kobject-example.o
 ccflags-y := -DDEBUG 
 
 modules:
-	$(MAKE) -C $(WORKDIR) M=$(PWD) modules
+	$(MAKE) -C $(WORKDIR) M=$(PWD) modules	
 clean:
 	$(MAKE) -C $(WORKDIR) M=$(PWD) clean
 modules_install:
