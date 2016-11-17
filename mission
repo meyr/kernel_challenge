@@ -8,4 +8,4 @@
   task07 -- download, build, and boot linux-next kernel
 **task08 -- debugfs
 **task09 -- sysfs, kobject
-  task10 --
+  task10 -- submit a patch
